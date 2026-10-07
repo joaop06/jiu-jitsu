@@ -1,0 +1,17 @@
+.stack {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.search {
+  max-width: 420px;
+}
+
+.list {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.miss {
+  color: var(--on-tatami-muted);
+}

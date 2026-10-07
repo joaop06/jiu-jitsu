@@ -1,0 +1,13 @@
+[14:46, 9/22/2026] João Pedro: O jiu-jítsu tem duas características principais que são as finalizações e as pontuações
+[14:46, 9/22/2026] João Pedro: Finalizações: estrangulamentos, Chaves de pernas, pés, ombros, mão, tornozelo, coluna, joelho.
+[14:46, 9/22/2026] João Pedro: O 100 kg não é controle é uma conclusão de uma movimentação que conclui ele como controle
+[14:46, 9/22/2026] João Pedro: Exemplo: conclusão de uma raspagem, de uma guarda.
+[14:46, 9/22/2026] João Pedro: Conceito de queda: inicia com os dois lutadores em pé, o objetivo é levar o oponente ao solo. Há quatro formas de se concretizará uma queda, cair sentado, de costas no tatame, de lado e de quatro apoios, neste último estando com pelo menos um joelho no solo e eu consiga ter uma posição de controle sobre o oponente. Por último, para pontuar, preciso aguardar os três segundos.
+[14:46, 9/22/2026] João Pedro: conceito de guarda: a ferramenta principal é as pernas. Fazer o uso das pernas, com o objetivo de impedir a passagem de guarda, fazendo o controle lateral, longitudinal ou transversal, seguido ou não de controle cumulativo, (passar com joelho na barriga, com montada),
+[14:46, 9/22/2026] João Pedro: Conceito de raspagem: partindo da guarda, levar o adversário ao solo. Há quatro formas de se concretizará uma raspagem, cair sentado, de costas no tatame, de lado e de quatro apoios, neste último estando com pelo menos um joelho no solo e eu consiga ter uma posição de controle sobre o oponente.
+[14:46, 9/22/2026] João Pedro: Obs.: quando o adversário cair de bruço, preciso aguardar para saber qual será o desfecho.
+[14:46, 9/22/2026] João Pedro: conceito de joelho na barriga: (não existe guarda quando estou com o joelho na barriga). Livre de guarda, usar o joelho ou canela sobre o tronco do meu adversário, (tanto de costas quanto de frente), será joelho na barriga. (Preciso estar com pelo menos um joelho sobre meu adversário, controlando meu oponente).
+[14:46, 9/22/2026] João Pedro: conceito da passagem de guarda: partindo de dentro da guarda do adversário, meu objetivo é ultrapassar a guarda e atingir o controle lateral, longitudinal ou transversal do oponente.
+[14:46, 9/22/2026] João Pedro: conceito de montada de frente: livre de guarda, sentado sobre o tronco do meu adversário, fazendo controle. Para ser considerado montada, preciso ter pelo menos um joelho no tatame.
+[14:46, 9/22/2026] João Pedro: Obs.: montada pelas costas preciso estar com os dois joelhos para ser considerado montada.
+[14:46, 9/22/2026] João Pedro: Pegada de costas: uso dos ganchos, não cruzar, caso contrário seria cadeado e não gancho. Não há necessidade de usar os braços, o mais importante são os três pontos de apoio: os dois ganchos e o controle do quadril do meu adversário.

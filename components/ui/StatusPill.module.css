@@ -1,0 +1,31 @@
+.pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 10px;
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.pill[data-status="to_study"] {
+  background: var(--paper-deep);
+  color: var(--on-paper);
+}
+
+.pill[data-status="studying"] {
+  background: var(--action);
+  color: var(--paper);
+}
+
+.pill[data-status="reviewed"] {
+  background: var(--meter-reviewed);
+  color: var(--paper);
+}
+
+.pill[data-status="mastered"] {
+  background: var(--mastery);
+  color: var(--mastery-ink);
+}

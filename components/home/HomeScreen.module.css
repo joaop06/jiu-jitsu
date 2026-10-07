@@ -1,0 +1,126 @@
+.stack {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.progress,
+.panel {
+  display: grid;
+  align-content: start;
+  gap: var(--space-4);
+}
+
+.sectionHead {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.sectionHead p,
+.quiet {
+  color: var(--on-paper-muted);
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+.stat {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-5) var(--space-4) var(--space-4);
+  border: 1px solid var(--line);
+  border-top: 4px solid var(--stripe, var(--meter-to_study));
+  border-radius: var(--radius-lg);
+  background: var(--paper);
+  color: var(--on-paper);
+  text-decoration: none;
+  box-shadow: var(--shadow-paper);
+  transition: transform 160ms ease;
+}
+
+.stat[data-status="to_study"] {
+  --stripe: var(--meter-to_study);
+}
+
+.stat[data-status="studying"] {
+  --stripe: var(--meter-studying);
+}
+
+.stat[data-status="reviewed"] {
+  --stripe: var(--meter-reviewed);
+}
+
+.stat[data-status="mastered"] {
+  --stripe: var(--meter-mastered);
+}
+
+.stat:hover {
+  transform: translateY(-2px);
+}
+
+.statValue {
+  font-family: var(--font-display);
+  font-size: 52px;
+  font-weight: 600;
+  line-height: 0.9;
+}
+
+.statLabel {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.split {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+.latestTitle {
+  font-family: var(--font-display);
+  font-size: 36px;
+  font-weight: 600;
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+.notes {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.notes li {
+  display: grid;
+  gap: 2px;
+}
+
+.noteLink {
+  color: var(--on-paper);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.noteLink:hover {
+  text-decoration: underline;
+}
+
+.noteMeta {
+  color: var(--on-paper-muted);
+  font-size: 14px;
+}
+
+@media (max-width: 800px) {
+  .stats {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .split {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,54 @@
+/* Identidade Tatame. Componentes consomem só estas variáveis. */
+
+:root {
+  --ink: #121614;
+  --tatami: #1c2420;
+  --tatami-raised: #24302a;
+  --paper: #f3eee4;
+  --paper-deep: #e7e0d2;
+  --paper-input: #fffdf8;
+  --line: #d9d1c3;
+  --line-strong: #c4baa8;
+  --on-tatami: #f3eee4;
+  --on-tatami-muted: #c4bdb2;
+  --on-paper: #121614;
+  --on-paper-muted: #5e584f;
+  --action: #1e4d78;
+  --action-hover: #163a5c;
+  --action-on-dark: #a9ccea;
+  --emphasis: #8c2f2f;
+  --emphasis-hover: #732626;
+  --mastery: #b0893e;
+  --mastery-ink: #1a1408;
+  --focus: #9ec4e4;
+  --belt-white: #f7f4ee;
+  --belt-blue: #1e4d78;
+  --belt-blue-bright: #6fa4d4;
+  --belt-purple: #5c3d73;
+  --belt-brown: #6b4226;
+  --belt-black: #161616;
+  --meter-to_study: #6b655c;
+  --meter-studying: #1e4d78;
+  --meter-reviewed: #234a36;
+  --meter-mastered: #b0893e;
+  --font-display: var(--font-barlow), "Arial Narrow", sans-serif;
+  --font-body: var(--font-source), "Segoe UI", sans-serif;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-pill: 999px;
+  --shadow-paper: 0 1px 0 rgba(18, 22, 20, 0.04), 0 14px 34px rgba(8, 12, 10, 0.16);
+  --shadow-paper-hover: 0 18px 40px rgba(0, 0, 0, 0.28);
+  --sidebar: 280px;
+  --content: 1080px;
+}

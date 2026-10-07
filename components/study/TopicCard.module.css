@@ -1,0 +1,86 @@
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-height: 220px;
+  padding: var(--space-5) var(--space-5) var(--space-4) var(--space-6);
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--paper);
+  color: var(--on-paper);
+  box-shadow: var(--shadow-paper);
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 6px;
+  background: var(--stripe, var(--meter-to_study));
+}
+
+.card[data-status="to_study"] {
+  --stripe: var(--meter-to_study);
+}
+
+.card[data-status="studying"] {
+  --stripe: var(--meter-studying);
+}
+
+.card[data-status="reviewed"] {
+  --stripe: var(--meter-reviewed);
+}
+
+.card[data-status="mastered"] {
+  --stripe: var(--meter-mastered);
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-paper-hover);
+}
+
+.title {
+  display: block;
+  color: var(--on-paper);
+  font-family: var(--font-display);
+  font-size: 30px;
+  font-weight: 600;
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.title:hover {
+  text-decoration: underline;
+}
+
+.goal {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  color: var(--on-paper-muted);
+}
+
+.meta {
+  margin-top: auto;
+  color: var(--on-paper-muted);
+  font-size: 14px;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
