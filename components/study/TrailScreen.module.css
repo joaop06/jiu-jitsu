@@ -1,6 +1,44 @@
 .stack {
   display: grid;
+  gap: var(--space-8);
+}
+
+.chapter {
+  display: grid;
   gap: var(--space-4);
+}
+
+.chapterHead {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.chapterHead h2 {
+  color: var(--on-tatami);
+  font-family: var(--font-display);
+  font-size: clamp(32px, 4vw, 44px);
+  font-weight: 600;
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+
+.chapterHead p {
+  max-width: 40rem;
+  color: var(--on-tatami-muted);
+}
+
+.group {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.group h3 {
+  color: var(--mastery);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
 }
 
 .grid {

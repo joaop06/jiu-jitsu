@@ -1,35 +1,73 @@
 "use client";
 
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useState } from "react";
+import { chapterOf, lessonById, type Block } from "@/lib/curriculum";
 import { formatWhen } from "@/lib/format";
 import { byUpdatedDesc } from "@/lib/study";
-import { addNote, deleteTopic, updateTopic, useTatame } from "@/lib/store";
+import { STATUS_LABEL, STUDY_STATUSES, isStudyStatus } from "@/lib/status";
+import { addNote, setLessonStatus, useTatame } from "@/lib/store";
 import { PageHeader } from "@/components/shell/PageHeader";
 import { buttonClass } from "@/components/ui/Button";
-import { ConfirmDelete } from "@/components/ui/ConfirmDelete";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { NoteEditor } from "@/components/notes/NoteEditor";
-import { TopicForm } from "@/components/study/TopicForm";
+import { Select } from "@/components/ui/Select";
+import { NoteEditor, lessonGroups } from "@/components/notes/NoteEditor";
 import styles from "./TopicScreen.module.css";
+
+function LessonBlocks({ blocks }: { blocks: Block[] }) {
+  return (
+    <div className={styles.lesson}>
+      {blocks.map((block, index) => {
+        if (block.kind === "text") {
+          return <p key={index}>{block.body}</p>;
+        }
+        if (block.kind === "heading") {
+          return (
+            <h3 key={index} className={styles.blockTitle}>
+              {block.text}
+            </h3>
+          );
+        }
+        if (block.kind === "list") {
+          return (
+            <ul key={index} className={styles.list}>
+              {block.items.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          );
+        }
+        return (
+          <section key={index} className={styles.technique}>
+            <h3>{block.name}</h3>
+            <ol className={styles.steps}>
+              {block.steps.map((step) => (
+                <li key={step}>{step}</li>
+              ))}
+            </ol>
+            {block.mistake ? <p className={styles.mistake}>Erro comum: {block.mistake}</p> : null}
+          </section>
+        );
+      })}
+    </div>
+  );
+}
 
 export function TopicScreen() {
   const params = useParams<{ id: string }>();
-  const router = useRouter();
   const id = typeof params.id === "string" ? params.id : "";
-  const { topics, notes } = useTatame();
-  const topic = topics.find((item) => item.id === id) ?? null;
+  const lesson = lessonById(id);
+  const chapter = lesson ? chapterOf(lesson.id) : null;
+  const { progress, notes } = useTatame();
   const [composerKey, setComposerKey] = useState(0);
+  const status = progress[id]?.status ?? "to_study";
+  const updatedAt = progress[id]?.updatedAt ?? null;
 
-  if (!topic) {
+  if (!lesson || !chapter) {
     return (
       <div>
-        <PageHeader
-          eyebrow="Tópico"
-          title="Não encontrado"
-          description="Esse registro saiu do caderno deste navegador."
-        />
+        <PageHeader eyebrow="Lição" title="Não encontrada" description="Essa lição não está na trilha." />
         <EmptyState
           title="Nada por aqui"
           action={
@@ -38,13 +76,13 @@ export function TopicScreen() {
             </Link>
           }
         >
-          O tópico pode ter sido excluído.
+          Escolha uma lição da avaliação de faixa azul.
         </EmptyState>
       </div>
     );
   }
 
-  const linked = byUpdatedDesc(notes.filter((note) => note.topicId === topic.id));
+  const linked = byUpdatedDesc(notes.filter((note) => note.topicId === lesson.id));
 
   return (
     <div className={styles.stack}>
@@ -52,33 +90,33 @@ export function TopicScreen() {
         <Link href="/trilha" className={styles.back}>
           ← Voltar à trilha
         </Link>
-        <PageHeader
-          eyebrow="Tópico"
-          title={topic.title}
-          description={topic.goal.trim() || "Sem objetivo descrito."}
-        />
+        <PageHeader eyebrow={chapter.title} title={lesson.title} description={lesson.goal} />
       </div>
-      <TopicForm
-        key={topic.id}
-        heading="Editar tópico"
-        submitLabel="Salvar tópico"
-        initial={{ title: topic.title, goal: topic.goal, status: topic.status }}
-        onSubmit={(values) => updateTopic(topic.id, values)}
-      />
       <section className={`notebook ${styles.review}`}>
-        <p>Última revisão em {formatWhen(topic.updatedAt)}</p>
-        <ConfirmDelete
-          label="Excluir tópico"
-          onConfirm={() => {
-            deleteTopic(topic.id);
-            router.push("/trilha");
-          }}
-        />
+        <div className={styles.status}>
+          <Select
+            label="Estágio"
+            value={status}
+            onChange={(event) => {
+              if (isStudyStatus(event.target.value)) setLessonStatus(lesson.id, event.target.value);
+            }}
+          >
+            {STUDY_STATUSES.map((item) => (
+              <option key={item} value={item}>
+                {STATUS_LABEL[item]}
+              </option>
+            ))}
+          </Select>
+        </div>
+        <p className={styles.meta}>{updatedAt ? `Última revisão em ${formatWhen(updatedAt)}` : "Ainda sem revisão."}</p>
       </section>
+      <article className={`notebook ${styles.reader}`}>
+        <LessonBlocks blocks={lesson.blocks} />
+      </article>
       <section className={`notebook ${styles.notes}`}>
-        <h2>Anotações deste tópico</h2>
+        <h2>Anotações desta lição</h2>
         {linked.length === 0 ? (
-          <p className={styles.meta}>Nenhuma anotação ligada a este tópico.</p>
+          <p className={styles.meta}>Nenhuma anotação ligada a esta lição.</p>
         ) : (
           <ul>
             {linked.map((note) => (
@@ -90,16 +128,16 @@ export function TopicScreen() {
             ))}
           </ul>
         )}
-        <Link href={`/anotacoes?topico=${topic.id}`} className={buttonClass("secondary")}>
+        <Link href={`/anotacoes?topico=${lesson.id}`} className={buttonClass("secondary")}>
           Abrir no caderno
         </Link>
       </section>
       <NoteEditor
-        key={`${topic.id}-${composerKey}`}
+        key={`${lesson.id}-${composerKey}`}
         heading="Nova anotação"
         submitLabel="Guardar anotação"
-        topics={topics}
-        initial={{ title: "", body: "", topicId: topic.id }}
+        groups={lessonGroups()}
+        initial={{ title: "", body: "", topicId: lesson.id }}
         onSubmit={(values) => {
           addNote(values);
           setComposerKey((key) => key + 1);

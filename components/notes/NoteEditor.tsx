@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import type { Topic } from "@/lib/types";
+import { CHAPTERS } from "@/lib/curriculum";
 import { Button } from "@/components/ui/Button";
 import { Field } from "@/components/ui/Field";
 import { IconButton } from "@/components/ui/IconButton";
@@ -16,23 +16,28 @@ export type NoteValues = {
   topicId: string | null;
 };
 
+export type LessonGroupOption = {
+  title: string;
+  lessons: { id: string; title: string }[];
+};
+
+export function lessonGroups(): LessonGroupOption[] {
+  return CHAPTERS.map((chapter) => ({
+    title: chapter.title,
+    lessons: chapter.groups.flatMap((group) => group.lessons.map((lesson) => ({ id: lesson.id, title: lesson.title }))),
+  }));
+}
+
 type NoteEditorProps = {
   heading: string;
   submitLabel: string;
-  topics: Topic[];
+  groups: LessonGroupOption[];
   initial?: NoteValues;
   onSubmit: (values: NoteValues) => void;
   onCancel?: () => void;
 };
 
-export function NoteEditor({
-  heading,
-  submitLabel,
-  topics,
-  initial,
-  onSubmit,
-  onCancel,
-}: NoteEditorProps) {
+export function NoteEditor({ heading, submitLabel, groups, initial, onSubmit, onCancel }: NoteEditorProps) {
   const [title, setTitle] = useState(initial?.title ?? "");
   const [body, setBody] = useState(initial?.body ?? "");
   const [topicId, setTopicId] = useState(initial?.topicId ?? "");
@@ -83,12 +88,16 @@ export function NoteEditor({
           onChange={(event) => setBody(event.target.value)}
         />
         <div className={styles.select}>
-          <Select label="Tópico" value={topicId} onChange={(event) => setTopicId(event.target.value)}>
-            <option value="">Sem tópico</option>
-            {topics.map((topic) => (
-              <option key={topic.id} value={topic.id}>
-                {topic.title}
-              </option>
+          <Select label="Lição" value={topicId} onChange={(event) => setTopicId(event.target.value)}>
+            <option value="">Sem lição</option>
+            {groups.map((group) => (
+              <optgroup key={group.title} label={group.title}>
+                {group.lessons.map((lesson) => (
+                  <option key={lesson.id} value={lesson.id}>
+                    {lesson.title}
+                  </option>
+                ))}
+              </optgroup>
             ))}
           </Select>
         </div>

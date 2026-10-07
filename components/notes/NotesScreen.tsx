@@ -2,19 +2,21 @@
 
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { isLessonId, lessonById } from "@/lib/curriculum";
 import { byUpdatedDesc } from "@/lib/study";
 import { addNote, deleteNote, updateNote, useTatame } from "@/lib/store";
 import { PageHeader } from "@/components/shell/PageHeader";
 import { Field } from "@/components/ui/Field";
 import { NoteCard } from "@/components/notes/NoteCard";
-import { NoteEditor } from "@/components/notes/NoteEditor";
+import { NoteEditor, lessonGroups } from "@/components/notes/NoteEditor";
 import styles from "./NotesScreen.module.css";
 
 export function NotesScreen() {
   const params = useSearchParams();
   const preset = params.get("topico");
-  const { topics, notes } = useTatame();
-  const presetTopic = preset && topics.some((topic) => topic.id === preset) ? preset : null;
+  const { notes } = useTatame();
+  const presetTopic = preset && isLessonId(preset) ? preset : null;
+  const groups = lessonGroups();
   const [query, setQuery] = useState("");
   const [draftKey, setDraftKey] = useState(0);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -31,7 +33,7 @@ export function NotesScreen() {
       <PageHeader
         eyebrow="Caderno"
         title="Anotações"
-        description="Registros soltos ou ligados a um tópico da trilha."
+        description="Registros soltos ou ligados a uma lição da trilha."
       />
       {notes.length > 0 ? (
         <div className={styles.search}>
@@ -48,7 +50,7 @@ export function NotesScreen() {
         key={`${presetTopic ?? "solta"}-${draftKey}`}
         heading="Nova anotação"
         submitLabel="Guardar anotação"
-        topics={topics}
+        groups={groups}
         initial={{ title: "", body: "", topicId: presetTopic }}
         onSubmit={(values) => {
           addNote(values);
@@ -61,9 +63,7 @@ export function NotesScreen() {
       ) : null}
       <ul className={styles.list}>
         {visible.map((note) => {
-          const topicTitle = note.topicId
-            ? (topics.find((topic) => topic.id === note.topicId)?.title ?? null)
-            : null;
+          const topicTitle = note.topicId ? (lessonById(note.topicId)?.title ?? null) : null;
 
           return (
             <li key={note.id}>
@@ -71,7 +71,7 @@ export function NotesScreen() {
                 <NoteEditor
                   heading="Editar anotação"
                   submitLabel="Salvar anotação"
-                  topics={topics}
+                  groups={groups}
                   initial={{ title: note.title, body: note.body, topicId: note.topicId }}
                   onCancel={() => setEditingId(null)}
                   onSubmit={(values) => {

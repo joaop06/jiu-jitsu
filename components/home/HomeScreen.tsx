@@ -2,45 +2,21 @@
 
 import Link from "next/link";
 import { formatWhen } from "@/lib/format";
-import { STATUS_LABEL, STUDY_STATUSES } from "@/lib/status";
-import { countByStatus, latestTopic, recentNotes } from "@/lib/study";
+import { countByStatus, latestTouched, recentNotes, trackLessons } from "@/lib/study";
 import { useTatame } from "@/lib/store";
 import { PageHeader } from "@/components/shell/PageHeader";
 import { buttonClass } from "@/components/ui/Button";
-import { EmptyState } from "@/components/ui/EmptyState";
 import { ProgressMeter } from "@/components/ui/ProgressMeter";
 import { StatusPill } from "@/components/ui/StatusPill";
+import { STATUS_LABEL, STUDY_STATUSES } from "@/lib/status";
 import styles from "./HomeScreen.module.css";
 
 export function HomeScreen() {
-  const { topics, notes } = useTatame();
-  const blank = topics.length === 0 && notes.length === 0;
-
-  if (blank) {
-    return (
-      <div>
-        <PageHeader
-          eyebrow="Preparação"
-          title="O tatame de hoje"
-          description="A trilha, as anotações e o estágio de cada assunto da avaliação."
-        />
-        <EmptyState
-          title="O caderno ainda está em branco"
-          action={
-            <Link href="/trilha" className={buttonClass("primary")}>
-              Criar o primeiro tópico
-            </Link>
-          }
-        >
-          Crie o primeiro tópico da trilha. A partir daí, o resumo, as anotações e o mural passam a
-          mostrar a sua preparação.
-        </EmptyState>
-      </div>
-    );
-  }
-
-  const counts = countByStatus(topics);
-  const latest = latestTopic(topics);
+  const { progress, notes } = useTatame();
+  const lessons = trackLessons(progress);
+  const counts = countByStatus(lessons);
+  const latest = latestTouched(lessons);
+  const focus = latest ?? lessons[0];
   const notesPreview = recentNotes(notes, 4);
 
   return (
@@ -48,7 +24,7 @@ export function HomeScreen() {
       <PageHeader
         eyebrow="Preparação"
         title="O tatame de hoje"
-        description="A trilha, as anotações e o estágio de cada assunto da avaliação."
+        description="A trilha da faixa azul, as anotações e o estágio de cada lição."
         actions={
           <Link href="/trilha" className={buttonClass("primary")}>
             Abrir a trilha
@@ -59,11 +35,10 @@ export function HomeScreen() {
         <div className={styles.sectionHead}>
           <h2>Como está a preparação</h2>
           <p>
-            {topics.length} {topics.length === 1 ? "tópico" : "tópicos"} · {notes.length}{" "}
-            {notes.length === 1 ? "anotação" : "anotações"}
+            {lessons.length} lições · {notes.length} {notes.length === 1 ? "anotação" : "anotações"}
           </p>
         </div>
-        <ProgressMeter topics={topics} />
+        <ProgressMeter lessons={lessons} />
       </section>
       <div className={styles.stats}>
         {STUDY_STATUSES.map((status) => (
@@ -75,20 +50,20 @@ export function HomeScreen() {
       </div>
       <div className={styles.split}>
         <section className={`notebook ${styles.panel}`}>
-          <h2>Último estudo</h2>
-          {latest ? (
+          <h2>{latest ? "Último estudo" : "Por onde começar"}</h2>
+          {focus ? (
             <>
-              <StatusPill status={latest.status} />
-              <p className={styles.latestTitle}>{latest.title}</p>
-              <p>{latest.goal.trim() || "Sem objetivo ainda."}</p>
-              <p className={styles.quiet}>Revisão em {formatWhen(latest.updatedAt)}</p>
-              <Link href={`/trilha/${latest.id}`} className={buttonClass("secondary")}>
-                Continuar
+              <StatusPill status={focus.status} />
+              <p className={styles.latestTitle}>{focus.title}</p>
+              <p>{focus.goal}</p>
+              <p className={styles.quiet}>
+                {focus.updatedAt ? `Revisão em ${formatWhen(focus.updatedAt)}` : "Ainda sem revisão."}
+              </p>
+              <Link href={`/trilha/${focus.id}`} className={buttonClass("secondary")}>
+                {latest ? "Continuar" : "Começar"}
               </Link>
             </>
-          ) : (
-            <p className={styles.quiet}>A trilha ainda espera o primeiro tópico.</p>
-          )}
+          ) : null}
         </section>
         <section className={`notebook ${styles.panel}`}>
           <h2>Anotações recentes</h2>

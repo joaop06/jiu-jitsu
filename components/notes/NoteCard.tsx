@@ -14,7 +14,7 @@ type NoteCardProps = {
 };
 
 export function NoteCard({ note, topicTitle, onEdit, onDelete }: NoteCardProps) {
-  const relation = note.topicId ? (topicTitle ?? "Tópico removido") : "Sem tópico";
+  const relation = topicTitle ?? "Sem lição";
 
   return (
     <article className={styles.card}>

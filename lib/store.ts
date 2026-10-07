@@ -1,13 +1,14 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import { isStudyStatus } from "@/lib/status";
-import type { Note, Snapshot, Topic } from "@/lib/types";
-import type { StudyStatus } from "@/lib/status";
+import { isLessonId } from "@/lib/curriculum";
+import { isStudyStatus, type StudyStatus } from "@/lib/status";
+import type { Note, ProgressEntry, Snapshot } from "@/lib/types";
 
-const STORAGE_KEY = "tatame.v1";
+const STORAGE_KEY = "tatame.v2";
+const LEGACY_KEY = "tatame.v1";
 
-const EMPTY: Snapshot = { topics: [], notes: [] };
+const EMPTY: Snapshot = { progress: {}, notes: [] };
 
 let memory: Snapshot = EMPTY;
 let loaded = false;
@@ -17,17 +18,13 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
 
-function isTopic(value: unknown): value is Topic {
+function isProgressEntry(value: unknown): value is ProgressEntry {
   if (!isRecord(value)) return false;
-  return (
-    typeof value.id === "string" &&
-    typeof value.title === "string" &&
-    typeof value.goal === "string" &&
-    typeof value.status === "string" &&
-    isStudyStatus(value.status) &&
-    typeof value.createdAt === "string" &&
-    typeof value.updatedAt === "string"
-  );
+  return typeof value.status === "string" && isStudyStatus(value.status) && typeof value.updatedAt === "string";
+}
+
+function lessonTopicId(value: unknown) {
+  return typeof value === "string" && isLessonId(value) ? value : null;
 }
 
 function isNote(value: unknown): value is Note {
@@ -42,34 +39,82 @@ function isNote(value: unknown): value is Note {
   );
 }
 
-function parse(raw: string | null): Snapshot {
-  if (!raw) return EMPTY;
+function toNote(value: Note): Note {
+  return { ...value, topicId: lessonTopicId(value.topicId) };
+}
+
+function parseProgress(value: unknown) {
+  if (!isRecord(value)) return {};
+  const progress: Record<string, ProgressEntry> = {};
+  for (const [id, entry] of Object.entries(value)) {
+    if (isLessonId(id) && isProgressEntry(entry)) progress[id] = entry;
+  }
+  return progress;
+}
+
+function parseNotes(value: unknown) {
+  if (!Array.isArray(value)) return [];
+  return value.filter(isNote).map(toNote);
+}
+
+function parseSnapshot(raw: string | null): Snapshot | null {
+  if (!raw) return null;
 
   try {
     const data: unknown = JSON.parse(raw);
     if (!isRecord(data)) return EMPTY;
-    const topics = Array.isArray(data.topics) ? data.topics.filter(isTopic) : [];
-    const notes = Array.isArray(data.notes) ? data.notes.filter(isNote) : [];
-    if (topics.length === 0 && notes.length === 0) return EMPTY;
-    return { topics, notes };
+    return {
+      progress: parseProgress(data.progress),
+      notes: parseNotes(data.notes),
+    };
   } catch {
     return EMPTY;
   }
 }
 
-function safeGet() {
+function parseLegacyNotes(raw: string | null) {
+  if (!raw) return [];
+
   try {
-    return window.localStorage.getItem(STORAGE_KEY);
+    const data: unknown = JSON.parse(raw);
+    if (!isRecord(data) || !Array.isArray(data.notes)) return [];
+    return data.notes.filter(isNote).map((note) => ({ ...note, topicId: null }));
+  } catch {
+    return [];
+  }
+}
+
+function safeGet(key: string) {
+  try {
+    return window.localStorage.getItem(key);
   } catch {
     return null;
+  }
+}
+
+function write(snapshot: Snapshot) {
+  try {
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot));
+  } catch {
+    // A interface segue nesta sessão mesmo se o navegador recusar a gravação.
   }
 }
 
 function readSnapshot(): Snapshot {
   if (typeof window === "undefined") return EMPTY;
   if (loaded) return memory;
-  memory = parse(safeGet());
+
+  const stored = parseSnapshot(safeGet(STORAGE_KEY));
+  if (stored) {
+    memory = stored;
+    loaded = true;
+    return memory;
+  }
+
+  const notes = parseLegacyNotes(safeGet(LEGACY_KEY));
+  memory = { progress: {}, notes };
   loaded = true;
+  if (notes.length > 0) write(memory);
   return memory;
 }
 
@@ -78,11 +123,7 @@ function commit(recipe: (current: Snapshot) => Snapshot) {
   const next = recipe(readSnapshot());
   memory = next;
   loaded = true;
-  try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-  } catch {
-    // A interface segue nesta sessão mesmo se o navegador recusar a gravação.
-  }
+  write(next);
   for (const listener of listeners) listener();
 }
 
@@ -124,46 +165,14 @@ function now() {
   return new Date().toISOString();
 }
 
-export function addTopic(input: { title: string; goal: string; status: StudyStatus }) {
-  const title = input.title.trim();
-  if (!title) return;
-  const stamp = now();
-  const topic: Topic = {
-    id: crypto.randomUUID(),
-    title,
-    goal: input.goal.trim(),
-    status: input.status,
-    createdAt: stamp,
-    updatedAt: stamp,
-  };
-  commit((current) => ({ ...current, topics: [topic, ...current.topics] }));
-}
-
-export function updateTopic(
-  id: string,
-  patch: Partial<Pick<Topic, "title" | "goal" | "status">>,
-) {
+export function setLessonStatus(id: string, status: StudyStatus) {
+  if (!isLessonId(id)) return;
   commit((current) => ({
     ...current,
-    topics: current.topics.map((topic) => {
-      if (topic.id !== id) return topic;
-      const title = patch.title !== undefined ? patch.title.trim() : topic.title;
-      if (!title) return topic;
-      return {
-        ...topic,
-        title,
-        goal: patch.goal !== undefined ? patch.goal.trim() : topic.goal,
-        status: patch.status ?? topic.status,
-        updatedAt: now(),
-      };
-    }),
-  }));
-}
-
-export function deleteTopic(id: string) {
-  commit((current) => ({
-    topics: current.topics.filter((topic) => topic.id !== id),
-    notes: current.notes.map((note) => (note.topicId === id ? { ...note, topicId: null } : note)),
+    progress: {
+      ...current.progress,
+      [id]: { status, updatedAt: now() },
+    },
   }));
 }
 
@@ -175,17 +184,14 @@ export function addNote(input: { title: string; body: string; topicId: string | 
     id: crypto.randomUUID(),
     title,
     body: input.body.trim(),
-    topicId: input.topicId,
+    topicId: lessonTopicId(input.topicId),
     createdAt: stamp,
     updatedAt: stamp,
   };
   commit((current) => ({ ...current, notes: [note, ...current.notes] }));
 }
 
-export function updateNote(
-  id: string,
-  patch: Partial<Pick<Note, "title" | "body" | "topicId">>,
-) {
+export function updateNote(id: string, patch: Partial<Pick<Note, "title" | "body" | "topicId">>) {
   commit((current) => ({
     ...current,
     notes: current.notes.map((note) => {
@@ -196,7 +202,7 @@ export function updateNote(
         ...note,
         title,
         body: patch.body !== undefined ? patch.body.trim() : note.body,
-        topicId: patch.topicId !== undefined ? patch.topicId : note.topicId,
+        topicId: patch.topicId !== undefined ? lessonTopicId(patch.topicId) : note.topicId,
         updatedAt: now(),
       };
     }),

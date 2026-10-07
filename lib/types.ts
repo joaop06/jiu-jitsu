@@ -1,11 +1,7 @@
 import type { StudyStatus } from "@/lib/status";
 
-export type Topic = {
-  id: string;
-  title: string;
-  goal: string;
+export type ProgressEntry = {
   status: StudyStatus;
-  createdAt: string;
   updatedAt: string;
 };
 
@@ -19,6 +15,6 @@ export type Note = {
 };
 
 export type Snapshot = {
-  topics: Topic[];
+  progress: Record<string, ProgressEntry>;
   notes: Note[];
 };
