@@ -1,0 +1,9 @@
+services:
+  tatame:
+    build: .
+    ports:
+      - "${PORT:-8082}:${PORT:-8082}"
+    environment:
+      PORT: ${PORT:-8082}
+      HOSTNAME: 0.0.0.0
+      NODE_ENV: production
